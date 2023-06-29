@@ -1,4 +1,5 @@
 import { TextStyle } from 'pixi.js';
+
 export const hpStyle = new TextStyle({
   align: 'center',
   fontFamily: '"Source Sans Pro", Helvetica, sans-serif',
@@ -7,7 +8,6 @@ export const hpStyle = new TextStyle({
   fill: ['#ffffff', '#00ff99'], // gradient
   stroke: '#01d27e',
   strokeThickness: 5,
-  // letterSpacing: 20,
   dropShadow: true,
   dropShadowColor: '#ccced2',
   dropShadowBlur: 4,
@@ -39,4 +39,20 @@ export const deadStyle = new TextStyle({
   fontSize: 30,
   fontWeight: '400',
   fill: ['#FF0000'],
+});
+
+export const logStyle = new TextStyle({
+  align: 'left',
+  fontFamily: '"Source Sans Pro", Helvetica, sans-serif',
+  fontSize: 14,
+  fontWeight: '200',
+  fill: ['#000000'],
+});
+
+export const splashStyle = new TextStyle({
+  align: 'center',
+  fontFamily: '"Source Sans Pro", Helvetica, sans-serif',
+  fontSize: 100,
+  fontWeight: 400,
+  fill: ['#000000'],
 });

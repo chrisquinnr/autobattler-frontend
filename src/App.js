@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import { Game } from './Components/Game.jsx';
 
@@ -9,6 +9,8 @@ const battleResultUrl = 'http://localhost:8000/api/battle';
 
 function App() {
   // const [webSocketId, setWebSocketId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [team, setTeam] = useState([]);
   const [index, setIndex] = useState(0);
   const [opposition, setOpposition] = useState([]);
@@ -29,24 +31,39 @@ function App() {
   useEffect(() => {
     fetch(getTeamUrl)
       .then((response) => response.json())
-      .then((data) => setTeam(data));
+      .then((data) => setTeam(data))
+      .catch((err) => {
+        setError(err);
+      });
   }, []);
 
   useEffect(() => {
     if (team) {
       fetch(getOppositionUrl)
         .then((response) => response.json())
-        .then((data) => setOpposition(data));
+        .then((data) => setOpposition(data))
+        .catch((err) => {
+          setError(err);
+        });
     }
-  }, []);
+  }, [team]);
 
   useEffect(() => {
     if (team && opposition) {
       fetch(battleResultUrl)
         .then((response) => response.json())
-        .then((data) => setBattleObject(data));
+        .then((data) => setBattleObject(data))
+        .catch((err) => {
+          setError(err);
+        });
     }
-  }, []);
+  }, [opposition, team]);
+
+  useEffect(() => {
+    if (team.length && opposition.length && battleObject?.steps && !error) {
+      setLoading(false);
+    }
+  }, [team, opposition, battleObject, error]);
 
   const updateRoster = (step) => {
     let defenderIndex = opposition.findIndex((o) => o.name === step.defender);
@@ -55,7 +72,9 @@ function App() {
       defenderIndex = team.findIndex((t) => t.name === step.defender);
       defence = team;
     }
-    if (defenderIndex < 0) return false;
+    if (defenderIndex < 0) {
+      return false;
+    }
     defence[defenderIndex].stats.hp = step.remaining_hp;
     if (step.who === 'ai') {
       setTeam(defence);
@@ -81,15 +100,27 @@ function App() {
 
   return (
     <div className="App">
-      <div>
-        <Game
-          team={team}
-          opposition={opposition}
-          result={battleObject?.result}
-          index={index}
-          steps={battleObject?.steps.slice(0, index)}
-        />
-      </div>
+      {loading ? (
+        <div>
+          <h1>Loading</h1>
+        </div>
+      ) : (
+        <div>
+          <Game
+            team={team}
+            opposition={opposition}
+            result={battleObject?.result}
+            index={index}
+            steps={battleObject?.steps.slice(0, index)}
+            done={battleObject?.steps.length === index}
+          />
+        </div>
+      )}
+      {error && (
+        <div>
+          <p>Error: {error.message}</p>
+        </div>
+      )}
     </div>
   );
 }

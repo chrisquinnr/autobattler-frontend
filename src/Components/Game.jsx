@@ -1,7 +1,14 @@
-import React, { useMemo } from 'react';
-import { Stage, Container, Sprite, Text } from '@pixi/react';
+import React, { useMemo, useCallback } from 'react';
+import { Stage, Container, Sprite, Text, Graphics } from '@pixi/react';
 import { Texture, AlphaFilter } from 'pixi.js';
-import { hpStyle, strStyle, defStyle, deadStyle } from './Styles';
+import {
+  hpStyle,
+  strStyle,
+  defStyle,
+  deadStyle,
+  logStyle,
+  splashStyle,
+} from './Styles';
 // import useWebSocket from 'react-use-websocket';
 
 export const Game = ({
@@ -11,12 +18,35 @@ export const Game = ({
   result,
   steps = [],
   index,
+  done,
 }) => {
-  // const { sendMessage, lastMessage, readyState } = useWebSocket(webSocketId, {
+  // const { sendMessage, lastMessage, readyState } = useWebSocket(webSocketId, {});
   const base = 150;
   const appWidth = 1200;
   const appHeight = 1200;
   const filter = useMemo(() => new AlphaFilter(0.5), []);
+
+  const drawBanner = useCallback((g) => {
+    g.clear();
+    g.beginFill(0xff0000, 0.65);
+    g.drawRoundedRect(-500, -30, 1800, 190, 0);
+    g.endFill();
+  }, []);
+
+  const drawDefenceIndicator = useCallback((g) => {
+    g.clear();
+    g.beginFill(0xff0000, 0.65);
+    g.drawRoundedRect(-40, 20, 100, 100, 0.8);
+    g.endFill();
+  }, []);
+
+  const drawAttackIndicator = useCallback((g) => {
+    g.clear();
+    g.beginFill(0x0021f3, 0.65);
+    g.drawRoundedRect(-40, 20, 100, 100, 0.8);
+    g.endFill();
+  }, []);
+
   return (
     <Stage
       width={appWidth}
@@ -39,17 +69,21 @@ export const Game = ({
         {opposition.map((char, i) => {
           const pos = base * i;
           const isDead = !!char.stats.hp < 1;
-          console.log(steps.at(-1), 'current step');
           const isDefender = steps.at(-1)?.defender === char.name;
+          const isAttacker = steps.at(-1)?.attacker === char.name;
           return (
             <>
-              {isDefender ? (
-                <Text
+              {isDefender && (
+                <Graphics
                   position={{ x: pos + 20, y: base - 200 }}
-                  text="DEFENDER"
+                  draw={drawDefenceIndicator}
                 />
-              ) : (
-                <Text position={{ x: pos + 20, y: base - 200 }} text="NOT" />
+              )}
+              {isAttacker && (
+                <Graphics
+                  position={{ x: pos + 20, y: base - 200 }}
+                  draw={drawAttackIndicator}
+                />
               )}
               <Sprite
                 image={char.src}
@@ -89,15 +123,20 @@ export const Game = ({
           const pos = base * i;
           const isDead = !!char.stats.hp < 1;
           const isDefender = steps.at(-1)?.defender === char.name;
+          const isAttacker = steps.at(-1)?.attacker === char.name;
           return (
             <>
-              {isDefender ? (
-                <Text
+              {isDefender && (
+                <Graphics
                   position={{ x: pos + 20, y: base - 200 }}
-                  text="DEFENDER"
+                  draw={drawDefenceIndicator}
                 />
-              ) : (
-                <Text position={{ x: pos + 20, y: base - 200 }} text="NOT" />
+              )}
+              {isAttacker && (
+                <Graphics
+                  position={{ x: pos + 20, y: base - 200 }}
+                  draw={drawAttackIndicator}
+                />
               )}
               <Sprite
                 key={i}
@@ -138,22 +177,27 @@ export const Game = ({
       </Container>
       <Container x={0} y={100}>
         {steps.map(({ attacker, damage, defender, remaining_hp }, i) => (
-          <Container x={0} y={i * 30}>
+          <Container x={0} y={i * 20}>
             {remaining_hp > 0 ? (
               <Text
                 text={`${attacker} dealt ${damage} damage to ${defender}`}
+                style={logStyle}
               />
             ) : (
               <Text
                 text={`${attacker} dealt ${damage} damage and killed ${defender}!`}
+                style={logStyle}
               />
             )}
           </Container>
         ))}
       </Container>
-      <Container y={900}>
-        <Text text={result} />
-      </Container>
+      {done && (
+        <Container x={300} y={600}>
+          <Graphics draw={drawBanner} />
+          <Text text={result} style={splashStyle} />
+        </Container>
+      )}
     </Stage>
   );
 };
