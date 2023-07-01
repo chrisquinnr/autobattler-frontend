@@ -56,3 +56,11 @@ export const splashStyle = new TextStyle({
   fontWeight: 400,
   fill: ['#000000'],
 });
+
+export const gigaStyle = new TextStyle({
+  align: 'center',
+  fontFamily: '"Source Sans Pro", Helvetica, sans-serif',
+  fontSize: 14,
+  fontWeight: 800,
+  fill: ['#000000'],
+});

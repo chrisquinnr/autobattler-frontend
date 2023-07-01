@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './App.css';
 import { Game } from './Components/Game.jsx';
 
@@ -6,7 +6,7 @@ import { Game } from './Components/Game.jsx';
 const getTeamUrl = 'http://localhost:8000/api/team';
 const getOppositionUrl = 'http://localhost:8000/api/opposition';
 const battleResultUrl = 'http://localhost:8000/api/battle';
-
+const GAME_SPEED = 1000;
 function App() {
   // const [webSocketId, setWebSocketId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,7 +28,7 @@ function App() {
   //     .then((data) => setWebSocketId(data.url));
   // }, []);
 
-  useEffect(() => {
+  useMemo(() => {
     fetch(getTeamUrl)
       .then((response) => response.json())
       .then((data) => setTeam(data))
@@ -37,7 +37,7 @@ function App() {
       });
   }, []);
 
-  useEffect(() => {
+  useMemo(() => {
     if (team) {
       fetch(getOppositionUrl)
         .then((response) => response.json())
@@ -57,7 +57,7 @@ function App() {
           setError(err);
         });
     }
-  }, [opposition, team]);
+  }, []);
 
   useEffect(() => {
     if (team.length && opposition.length && battleObject?.steps && !error) {
@@ -91,7 +91,7 @@ function App() {
       } else {
         clearInterval(interval); // Stop the interval when all elements have been moved
       }
-    }, 200);
+    }, GAME_SPEED);
 
     return () => {
       clearInterval(interval); // Cleanup: clear the interval when the component unmounts
@@ -105,7 +105,7 @@ function App() {
           <h1>Loading</h1>
         </div>
       ) : (
-        <div>
+        <div className="wrapper">
           <Game
             team={team}
             opposition={opposition}
