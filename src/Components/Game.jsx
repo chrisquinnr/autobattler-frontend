@@ -1,8 +1,8 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { Stage, Container, Sprite, Text, Graphics } from '@pixi/react';
 import { Texture, AlphaFilter } from 'pixi.js';
 import { logStyle, splashStyle, gigaStyle } from './Styles';
-import { Team } from './Team.jsx';
+import { TeamMember } from './Team.jsx';
 // import useWebSocket from 'react-use-websocket';
 
 export const Game = ({
@@ -15,7 +15,6 @@ export const Game = ({
   done,
 }) => {
   // const { sendMessage, lastMessage, readyState } = useWebSocket(webSocketId, {});
-  const base = 150;
   const appWidth = 1200;
   const appHeight = 1200;
   const filter = useMemo(() => new AlphaFilter(0.7), []);
@@ -32,7 +31,6 @@ export const Game = ({
       width={appWidth}
       height={appHeight}
       options={{
-        backgroundColor: '0x222222',
         antialias: true,
         backgroundAlpha: 0,
       }}
@@ -46,14 +44,14 @@ export const Game = ({
         filters={[filter]}
       />
       <Sprite texture={Texture.WHITE} width={1} height={1} />
-      <Container x={400} y={100}>
+      <Container x={900} y={50}>
         {opposition.map((char, i) => (
-          <Team base={base} char={char} steps={steps} i={i} />
+          <TeamMember char={char} steps={steps} i={i} who="opposition" />
         ))}
       </Container>
-      <Container x={450} y={600}>
+      <Container x={400} y={150}>
         {team.map((char, i) => (
-          <Team base={base} char={char} steps={steps} i={i} index={index} />
+          <TeamMember char={char} steps={steps} i={i} who="player" />
         ))}
       </Container>
       <Container x={100} y={0}>
